@@ -1,1 +1,22 @@
 
+.todoList {
+    display: grid;
+    place-items: center;
+}
+
+.taskList {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: baseline;
+}
+
+.taskSection {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+.completedTask {
+    color: gray;
+    text-decoration: line-through;
+}
