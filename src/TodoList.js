@@ -15,6 +15,7 @@ import { useState } from "react";
 function TodoList() {
   const [newTask, setNewTask] = useState("");
   const [taskList, setTaskList] = useState([]);
+  const [taskHistory, setTaskHistory] = useState([]);
   return (
     <div className="todoList">
       <h1 className="mainTitle">TODO List</h1>
@@ -23,7 +24,12 @@ function TodoList() {
         setTaskList={setTaskList}
         taskList={taskList}
       />
-      <Tasks setTaskList={setTaskList} taskList={taskList} />
+      <Tasks
+        setTaskList={setTaskList}
+        taskList={taskList}
+        taskHistory={taskHistory}
+        setTaskHistory={setTaskHistory}
+      />
     </div>
   );
 }
@@ -55,10 +61,8 @@ function TaskAddition({ onChangeTask, taskList, setTaskList }) {
     </Stack>
   );
 }
-//const taskList = [];
-const completedList = [];
 
-function Tasks({ setTaskList, taskList }) {
+function Tasks({ setTaskList, taskList, setTaskHistory, taskHistory }) {
   function currentTasks(list) {
     return list.map((task, i) => {
       return (
@@ -69,7 +73,7 @@ function Tasks({ setTaskList, taskList }) {
             alignItems="center"
             spacing={2}
           >
-            <Checkbox />
+            <Checkbox onChange={() => handleCheckBox(task, i)} />
             <p>{task}</p>
             <IconButton
               arial-label="delete"
@@ -87,9 +91,13 @@ function Tasks({ setTaskList, taskList }) {
       );
     });
   }
+  function handleCheckBox(task, i) {
+    setTaskHistory((taskHistory) => [task, ...taskHistory]);
+    setTaskList((taskList) => taskList.filter((task, index) => index !== i));
+  }
 
-  function completedTasks(Tasks) {
-    return Tasks.map((task, i) => {
+  function completedTasks(historyList) {
+    return historyList.map((task, i) => {
       return (
         <div key={i}>
           <Stack
@@ -100,13 +108,22 @@ function Tasks({ setTaskList, taskList }) {
           >
             <Checkbox disabled checked />
             <p className="completedTask">{task}</p>
-            <IconButton aria-label="undo">
+            <IconButton
+              aria-label="undo"
+              onClick={() => handleUndoButton(task, i)}
+            >
               <ReplayRoundedIcon />
             </IconButton>
           </Stack>
         </div>
       );
     });
+    function handleUndoButton(task, i) {
+      setTaskHistory((taskHistory) =>
+        taskHistory.filter((task, index) => index !== i)
+      );
+      setTaskList((taskList) => [...taskList, task]);
+    }
   }
   return (
     <>
@@ -116,7 +133,7 @@ function Tasks({ setTaskList, taskList }) {
       </div>
       <div className="taskList">
         <h1 className="listTitle">Finished</h1>
-        {completedTasks(completedList)}
+        {completedTasks(taskHistory)}
       </div>
     </>
   );
