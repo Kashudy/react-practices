@@ -10,20 +10,31 @@ import ClearIcon from "@mui/icons-material/Clear";
 import ReplayRoundedIcon from "@mui/icons-material/ReplayRounded";
 import AddIcon from "@mui/icons-material/Add";
 import TextField from "@mui/material/TextField";
+import { useState } from "react";
 
 function TodoList() {
-  const currentTasks = ["learn React", "cook dinner", "take a shower"];
-  const finishedTaskList = ["start a new project", "wash dishes"];
+  const [newTask, setNewTask] = useState("");
+  const [taskList, setTaskList] = useState([]);
   return (
     <div className="todoList">
       <h1 className="mainTitle">TODO List</h1>
-      <TaskAddition />
-      <Tasks currentTasks={currentTasks} finishedTaskList={finishedTaskList} />
+      <TaskAddition
+        onChangeTask={setNewTask}
+        setTaskList={setTaskList}
+        taskList={taskList}
+      />
+      <Tasks setTaskList={setTaskList} taskList={taskList} />
     </div>
   );
 }
 
-function TaskAddition() {
+function TaskAddition({ onChangeTask, taskList, setTaskList }) {
+  const [text, setText] = useState("");
+  function handleClick() {
+    onChangeTask(text);
+    setTaskList((taskList) => [...taskList, text]);
+    setText("");
+  }
   return (
     <Stack
       direction="row"
@@ -31,19 +42,27 @@ function TaskAddition() {
       alignItems="center"
       spacing={1}
     >
-      <TextField id="standard-basic" label="Add item..." variant="standard" />
-      <IconButton aria-label="add">
+      <TextField
+        id="standard-basic"
+        label="Add item..."
+        variant="standard"
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+      />
+      <IconButton aria-label="add" onClick={handleClick}>
         <AddIcon />
       </IconButton>
     </Stack>
   );
 }
+//const taskList = [];
+const completedList = [];
 
-function Tasks({ currentTasks, finishedTaskList }) {
-  function taskList(tasks) {
-    return tasks.map((task) => {
+function Tasks({ setTaskList, taskList }) {
+  function currentTasks(list) {
+    return list.map((task, i) => {
       return (
-        <div>
+        <div key={i}>
           <Stack
             direction="row"
             justifyContent="center"
@@ -52,7 +71,15 @@ function Tasks({ currentTasks, finishedTaskList }) {
           >
             <Checkbox />
             <p>{task}</p>
-            <IconButton arial-label="delete">
+            <IconButton
+              arial-label="delete"
+              key={i}
+              onClick={() =>
+                setTaskList((taskList) =>
+                  taskList.filter((task, index) => index !== i)
+                )
+              }
+            >
               <ClearIcon />
             </IconButton>
           </Stack>
@@ -60,21 +87,24 @@ function Tasks({ currentTasks, finishedTaskList }) {
       );
     });
   }
-  function finishedTasksList(finishedTasks) {
-    return finishedTasks.map((task) => {
+
+  function completedTasks(Tasks) {
+    return Tasks.map((task, i) => {
       return (
-        <Stack
-          direction="row"
-          justifyContent="center"
-          alignItems="center"
-          spacing={2}
-        >
-          <Checkbox disabled checked />
-          <p className="completedTask">{task}</p>
-          <IconButton aria-label="undo">
-            <ReplayRoundedIcon />
-          </IconButton>
-        </Stack>
+        <div key={i}>
+          <Stack
+            direction="row"
+            justifyContent="center"
+            alignItems="center"
+            spacing={2}
+          >
+            <Checkbox disabled checked />
+            <p className="completedTask">{task}</p>
+            <IconButton aria-label="undo">
+              <ReplayRoundedIcon />
+            </IconButton>
+          </Stack>
+        </div>
       );
     });
   }
@@ -82,11 +112,11 @@ function Tasks({ currentTasks, finishedTaskList }) {
     <>
       <div className="taskList">
         <h1 className="listTitle">In Progress</h1>
-        {taskList(currentTasks)}
+        {currentTasks(taskList)}
       </div>
       <div className="taskList">
         <h1 className="listTitle">Finished</h1>
-        {finishedTasksList(finishedTaskList)}
+        {completedTasks(completedList)}
       </div>
     </>
   );
